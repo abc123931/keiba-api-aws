@@ -4,7 +4,7 @@ env:
   variables:
     GO_VERSION: 1.10.1
     SRC_DIR: src/github.com/abc123931
-    PROJECT_NAME: My-SAM-Project
+    PROJECT_NAME: keiba-api-aws
 
 phases:
 
