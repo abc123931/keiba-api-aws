@@ -22,6 +22,7 @@ Resources:
   GetHelloWorld:
     Type: AWS::Serverless::Function
     Properties:
+      CodeUri: hello-world/
       Handler: main
       Runtime: go1.x
       Role:
@@ -33,3 +34,74 @@ Resources:
           Properties:
             Path: /
             Method: get
+  GetTestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: testhandler/
+      Handler: main
+      Runtime: go1.x
+      FunctionName: get-test-handler
+      # Policies:
+      #   - Statement:
+      #     - Effect: Allow
+      #       Action:
+      #         - 'dynamodb:Query'
+      #         - 'dynamodb:GetItem'
+      #       Resources:
+      #         - '*'
+      # Policies:
+      #   - Statement:
+      #     - Effect: Allow
+      #       Action:
+      #         - 'iam:GetRole'
+      #         - 'iam:PassRole'
+      #         - ' iam:CreateRole'
+      #       Resources:
+      #         - 'arn:aws:iam::288889698830:role/role-lambdaexec'
+      Role:
+        Fn::ImportValue:
+          !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
+      # Policies: AWSLambdaDynamoDBExecutionRole
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /test
+            Method: get
+  GetBook:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get-book/
+      Handler: main
+      Runtime: go1.x
+      FunctionName: get-test-connect-dynamo
+      Role: !GetAtt BackingLambdaExecutionRole.Arn
+        # Fn::ImportValue:
+        #   !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: post
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DYNAMO_REGION: ap-northeast-1
+  BackingLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "lambda.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSConfigRulesExecutionRole
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+      RoleName: CodestarExecLamdaRoleConnectDynamo
