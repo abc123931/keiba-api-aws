@@ -39,22 +39,14 @@ phases:
       # Ensure code passes all lint tests
       - golint -set_exit_status
 
-      # Check for common Go application problems with 'go tool vet'
-      # - go tool vet .
-
       # Run all tests included with our application
-      - go test ./hello-world/
-      - go test ./testhandler/
+      - go test ./gethorsename/
 
   build:
     commands:
 
       # Build our go application
-      - cd hello-world
-      - go build -o main
-      - cd ../testhandler
-      - go build -o main
-      - cd ../get-book
+      - cd gethorsename
       - go build -o main
       - cd ../
 

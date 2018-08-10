@@ -19,70 +19,19 @@ Parameters:
 #       Type: Canary10Percent5Minutes
 
 Resources:
-  GetHelloWorld:
+  GetHorseName:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello-world/
+      CodeUri: gethorsename/
       Handler: main
       Runtime: go1.x
-      Role:
-        Fn::ImportValue:
-          !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
-      Events:
-        GetEvent:
-          Type: Api
-          Properties:
-            Path: /
-            Method: get
-  GetTestFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: testhandler/
-      Handler: main
-      Runtime: go1.x
-      FunctionName: get-test-handler
-      # Policies:
-      #   - Statement:
-      #     - Effect: Allow
-      #       Action:
-      #         - 'dynamodb:Query'
-      #         - 'dynamodb:GetItem'
-      #       Resources:
-      #         - '*'
-      # Policies:
-      #   - Statement:
-      #     - Effect: Allow
-      #       Action:
-      #         - 'iam:GetRole'
-      #         - 'iam:PassRole'
-      #         - ' iam:CreateRole'
-      #       Resources:
-      #         - 'arn:aws:iam::288889698830:role/role-lambdaexec'
-      Role:
-        Fn::ImportValue:
-          !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
-      # Policies: AWSLambdaDynamoDBExecutionRole
-      Events:
-        GetEvent:
-          Type: Api
-          Properties:
-            Path: /test
-            Method: get
-  GetBook:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: get-book/
-      Handler: main
-      Runtime: go1.x
-      FunctionName: get-test-connect-dynamo
+      FunctionName: get-horse-name
       Role: !GetAtt BackingLambdaExecutionRole.Arn
-        # Fn::ImportValue:
-        #   !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
       Events:
         GetEvent:
           Type: Api
           Properties:
-            Path: /
+            Path: /horsename
             Method: post
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:

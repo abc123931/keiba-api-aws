@@ -3,15 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/abc123931/keiba-api-aws/util"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
-	"github.com/joho/godotenv"
 )
 
 var (
@@ -22,7 +19,7 @@ var (
 // Horse 馬名検索用の構造体
 type Horse struct {
 	Category string `dynamo:"category" json:"category"`
-	HorseID  string `dynamo:"horse_id" json:"id"`
+	HorseID  string `dynamo:"id" json:"id"`
 	Name     string `dynamo:"name" json:"name"`
 }
 
@@ -38,68 +35,65 @@ type DbConnect interface {
 
 // Request リクエスト用の構造体
 type Request struct {
-	Category  string `json:category`
-	HorseName string `json:horse_name`
+	Category  string `json:"category"`
+	HorseName string `json:"horse_name"`
 }
 
-// Env_load 開発環境ようにdotenvを読み込む関数
-func Env_load() {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("start lambda function at prod")
-	}
+// Response レスポンス用の構造体
+type Response struct {
+	Data  []Horse `json:"data"`
+	Error string  `json:"error"`
 }
 
 // get DbConnectインターフェースを利用するための関数
 func (table *Table) get(category string, name string) (horses []Horse, err error) {
 	horses = []Horse{}
 	err = table.Table.Get("category", category).
-		Filter("contains($, ?)", "name", name).
+		Range("name", dynamo.BeginsWith, name).
 		All(&horses)
 
 	return
 }
 
 // getHorseName 検索したい馬のリストを取得する関数
-func getHorseName(db DbConnect, category string, horseName string) (response string, err error) {
-	horses, err := db.get(category, horseName)
+func getHorseName(db DbConnect, r events.APIGatewayProxyRequest) *Response {
+	request := &Request{}
+	response := &Response{}
+
+	err := json.Unmarshal([]byte(r.Body), request)
+	if err != nil {
+		fmt.Printf("failed unmarshal request: %v", err)
+		response.Error = err.Error()
+		return response
+	}
+
+	response.Data, err = db.get(request.Category, request.HorseName)
+
 	if err != nil {
 		fmt.Printf("failed get horse names: %v", err)
-		return
+		response.Error = err.Error()
 	}
 
-	json, err := json.Marshal(horses)
+	return response
+}
+
+// createResponse レスポンスBodyを生成
+func createResponse(response *Response) (responseBody string) {
+	json, err := json.Marshal(response)
 	if err != nil {
-		log.Println(err)
-		return
+		responseBody = `{"error":{"failed json marshal response"}}`
 	}
-	response = string(json)
-	return
 
+	responseBody = string(json)
+	return
 }
 
 // handler ApiGatewayからのリクエストを受けつけ、レスポンスを返却する関数
 func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	db := dynamo.New(session.New(), &aws.Config{
-		Region:   aws.String(dynamoRegion),
-		Endpoint: aws.String(dynamoEndpoint),
-	})
+	table := &Table{}
+	table.Table = util.ConnectTable("search_horses", dynamoRegion, dynamoEndpoint)
 
-	table := &Table{db.Table("Horses")}
-
-	request := &Request{}
-	err := json.Unmarshal([]byte(r.Body), request)
-
-	response := ""
-
-	if err != nil {
-		response = fmt.Sprintf("cannot encode request json: %s", err)
-	} else {
-		response, err = getHorseName(table, request.Category, request.HorseName)
-		if err != nil {
-			response = fmt.Sprintf("cannot get horse name: %s", err)
-		}
-	}
+	response := createResponse(getHorseName(table, r))
 
 	return events.APIGatewayProxyResponse{
 		Body:       response,
@@ -108,7 +102,7 @@ func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, e
 }
 
 func init() {
-	Env_load()
+	util.EnvLoad()
 	dynamoRegion = os.Getenv("DYNAMO_REGION")
 	dynamoEndpoint = os.Getenv("DYNAMO_ENPOINT")
 }
