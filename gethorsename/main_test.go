@@ -28,7 +28,7 @@ func TestHandler(t *testing.T) {
 			t.Fatal("getHorseName not failed")
 		}
 
-		expected := "ValidationException: Comparison type does not exist in DynamoDB"
+		expected := "Key: 'Request.Category' Error:Field validation for 'Category' failed on the 'required' tag"
 		if res.Error != expected {
 			t.Fatal("response not same expected: expected is " +
 				expected + " response is " + res.Error)

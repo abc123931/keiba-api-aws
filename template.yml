@@ -36,6 +36,23 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           DYNAMO_REGION: ap-northeast-1
+  GetRaceName:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: getracename/
+      Handler: main
+      Runtime: go1.x
+      FunctionName: get-race-name
+      Role: !GetAtt BackingLambdaExecutionRole.Arn
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /racename
+            Method: post
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DYNAMO_REGION: ap-northeast-1
   BackingLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:

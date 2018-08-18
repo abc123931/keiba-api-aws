@@ -4,16 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/abc123931/keiba-api-aws/util"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/guregu/dynamo"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 var (
 	dynamoRegion   string
 	dynamoEndpoint string
+	validate       *validator.Validate
 )
 
 // Horse 馬名検索用の構造体
@@ -35,8 +39,8 @@ type DbConnect interface {
 
 // Request リクエスト用の構造体
 type Request struct {
-	Category  string `json:"category"`
-	HorseName string `json:"horse_name"`
+	Category  string `json:"category" validate:"required"`
+	HorseName string `json:"horse_name" validate:"required"`
 }
 
 // Response レスポンス用の構造体
@@ -48,8 +52,10 @@ type Response struct {
 // get DbConnectインターフェースを利用するための関数
 func (table *Table) get(category string, name string) (horses []Horse, err error) {
 	horses = []Horse{}
+	now, _ := strconv.Atoi(strconv.FormatInt(time.Now().UTC().UnixNano(), 10))
 	err = table.Table.Get("category", category).
-		Range("name", dynamo.BeginsWith, name).
+		Range("created_time", dynamo.LessOrEqual, now).
+		Filter("contains($, ?)", "name", name).
 		All(&horses)
 
 	return
@@ -58,11 +64,20 @@ func (table *Table) get(category string, name string) (horses []Horse, err error
 // getHorseName 検索したい馬のリストを取得する関数
 func getHorseName(db DbConnect, r events.APIGatewayProxyRequest) *Response {
 	request := &Request{}
-	response := &Response{}
+	response := &Response{Data: []Horse{}}
 
 	err := json.Unmarshal([]byte(r.Body), request)
 	if err != nil {
 		fmt.Printf("failed unmarshal request: %v", err)
+		response.Error = err.Error()
+		return response
+	}
+
+	validate = validator.New()
+	err = validate.Struct(request)
+
+	if err != nil {
+		fmt.Printf("validate request: %v", err)
 		response.Error = err.Error()
 		return response
 	}
@@ -91,7 +106,7 @@ func createResponse(response *Response) (responseBody string) {
 // handler ApiGatewayからのリクエストを受けつけ、レスポンスを返却する関数
 func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	table := &Table{}
-	table.Table = util.ConnectTable("search_horses", dynamoRegion, dynamoEndpoint)
+	table.Table = util.ConnectTable("search_names", dynamoRegion, dynamoEndpoint)
 
 	response := createResponse(getHorseName(table, r))
 
