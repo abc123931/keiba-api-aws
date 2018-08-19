@@ -48,6 +48,8 @@ phases:
       # Build our go application
       - cd gethorsename
       - go build -o main
+      - cd ../getracename
+      - go build -o main
       - cd ../
 
       # upload template to s3
