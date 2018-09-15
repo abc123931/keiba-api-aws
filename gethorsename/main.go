@@ -53,6 +53,7 @@ type Response struct {
 func (table *Table) get(category string, name string) (horses []Horse, err error) {
 	horses = []Horse{}
 	now, _ := strconv.Atoi(strconv.FormatInt(time.Now().UTC().UnixNano(), 10))
+	fmt.Println(now)
 	err = table.Table.Get("category", category).
 		Range("created_time", dynamo.LessOrEqual, now).
 		Filter("contains($, ?)", "name", name).
@@ -82,6 +83,7 @@ func getHorseName(db DbConnect, r events.APIGatewayProxyRequest) *Response {
 		return response
 	}
 
+	fmt.Printf("%v", request)
 	response.Data, err = db.get(request.Category, request.HorseName)
 
 	if err != nil {
