@@ -50,6 +50,8 @@ phases:
       - go build -o main
       - cd ../getracename
       - go build -o main
+      - cd ../gethorseid
+      - go build -o main
       - cd ../
 
       # upload template to s3

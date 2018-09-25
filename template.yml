@@ -53,6 +53,23 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           DYNAMO_REGION: ap-northeast-1
+  GetHorseId:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: gethorseid/
+      Handler: main
+      Runtime: go1.x
+      FunctionName: get-horse-id
+      Role: !GetAtt BackingLambdaExecutionRole.Arn
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /horseid
+            Method: post
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DYNAMO_REGION: ap-northeast-1
   BackingLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
