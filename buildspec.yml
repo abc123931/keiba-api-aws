@@ -52,7 +52,6 @@ phases:
       - go build -o main
       - cd ../gethorseid
       - go build -o main
-      - cd ../
       - cd ../line_bot_test
       - go build -o main
       - cd ../
