@@ -70,6 +70,23 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           DYNAMO_REGION: ap-northeast-1
+  LineBotTest:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: line_bot_test/
+      Handler: main
+      Runtime: go1.x
+      FunctionName: line-bot-test
+      Role: !GetAtt BackingLambdaExecutionRole.Arn
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /line_bot_test
+            Method: post
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DYNAMO_REGION: ap-northeast-1
   BackingLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:

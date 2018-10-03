@@ -53,6 +53,9 @@ phases:
       - cd ../gethorseid
       - go build -o main
       - cd ../
+      - cd ../line_bot_test
+      - go build -o main
+      - cd ../
 
       # upload template to s3
       - aws cloudformation package --template template.yml --s3-bucket $S3_BUCKET --output-template template-export.yml

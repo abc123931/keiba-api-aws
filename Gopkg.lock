@@ -117,6 +117,14 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:fc8b9119ac036faaab206f517421116d5cf2eaf35d213f6b5d8e2c74dba6f76c"
+  name = "github.com/line/line-bot-sdk-go"
+  packages = ["linebot"]
+  pruneopts = "UT"
+  revision = "d787aef1744dc11dbde0fac149e6fbbdbe29d3d6"
+  version = "v4.0.0"
+
+[[projects]]
   branch = "master"
   digest = "1:76ee51c3f468493aff39dbacc401e8831fbb765104cbf613b89bef01cf4bad70"
   name = "golang.org/x/net"
@@ -142,6 +150,7 @@
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/guregu/dynamo",
     "github.com/joho/godotenv",
+    "github.com/line/line-bot-sdk-go/linebot",
     "gopkg.in/go-playground/validator.v9",
   ]
   solver-name = "gps-cdcl"
