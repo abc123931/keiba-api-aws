@@ -11,9 +11,9 @@ import (
 )
 
 func ParseRequest(channelSecret string, r events.APIGatewayProxyRequest) ([]*linebot.Event, error) {
-	if !validateSignature(channelSecret, r.Headers["X-Line-Signature"], []byte(r.Body)) {
-		return nil, linebot.ErrInvalidSignature
-	}
+	//if !validateSignature(channelSecret, r.Headers["X-Line-Signature"], []byte(r.Body)) {
+	//	return nil, linebot.ErrInvalidSignature
+	//}
 
 	request := &struct {
 		Events []*linebot.Event `json:"events"`
