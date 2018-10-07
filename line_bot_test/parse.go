@@ -12,8 +12,9 @@ import (
 )
 
 func ParseRequest(channelSecret string, r events.APIGatewayProxyRequest) ([]*linebot.Event, error) {
-	fmt.Printf("%v", r.Headers)
-	fmt.Printf("%v", r.Headers["X-Line-Signature"])
+	fmt.Printf("%v\n", r.Headers)
+	fmt.Printf("%v\n", r.Headers["X-Line-Signature"])
+	fmt.Printf("%v\n", r.Body)
 	//if !validateSignature(channelSecret, r.Headers["X-Line-Signature"], []byte(r.Body)) {
 	//	return nil, linebot.ErrInvalidSignature
 	//}
