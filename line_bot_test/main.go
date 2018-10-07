@@ -1,119 +1,67 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/abc123931/keiba-api-aws/util"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/guregu/dynamo"
-	"gopkg.in/go-playground/validator.v9"
+	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 var (
-	dynamoRegion   string
-	dynamoEndpoint string
-	validate       *validator.Validate
+	channelSecret string
+	channelToken  string
 )
 
-// Horse 馬名検索用の構造体
-type Horse struct {
-	ID   string `dynamo:"id" json:"id"`
-	Name string `dynamo:"name" json:"name"`
+// LineMessage lineから送信されたMessageの構造体
+type LineMessage struct {
+	Message *linebot.TextMessage
+	Status  int
 }
 
-// Table dynamo.Table用の構造体
-type Table struct {
-	Table dynamo.Table
-}
+// getLineMessage lineからのメッセージを取得する関数
+func getLineMessage(r events.APIGatewayProxyRequest) (lineMessage LineMessage) {
+	lineMessage.Status = 200
+	events, err := ParseRequest(channelSecret, r)
+	if err != nil {
+		if err == linebot.ErrInvalidSignature {
+			lineMessage.Status = 400
+		} else {
+			lineMessage.Status = 500
+		}
+		fmt.Println(err)
+	}
 
-// DbConnect Table用のインターフェース
-type DbConnect interface {
-	get(id string) (horse Horse, err error)
-}
-
-// Request リクエスト用の構造体
-type Request struct {
-	ID string `json:"id" validate:"required"`
-}
-
-// Response レスポンス用の構造体
-type Response struct {
-	Data  Horse  `json:"data"`
-	Error string `json:"error"`
-}
-
-// get DbConnectインターフェースを利用するための関数
-func (table *Table) get(id string) (horse Horse, err error) {
-	horse = Horse{}
-	err = table.Table.Get("id", id).One(&horse)
+	for _, event := range events {
+		if event.Type == linebot.EventTypeMessage {
+			message := event.Message
+			if value, ok := message.(*linebot.TextMessage); ok {
+				lineMessage.Message = value
+			} else {
+				lineMessage.Message = nil
+			}
+		}
+	}
 
 	return
 }
 
-// getHorseName 検索したい馬のリストを取得する関数
-func getHorseName(db DbConnect, r events.APIGatewayProxyRequest) *Response {
-	request := &Request{}
-	response := &Response{Data: Horse{}}
-
-	err := json.Unmarshal([]byte(r.Body), request)
-	if err != nil {
-		fmt.Printf("failed unmarshal request: %v", err)
-		response.Error = err.Error()
-		return response
-	}
-
-	validate = validator.New()
-	err = validate.Struct(request)
-
-	if err != nil {
-		fmt.Printf("validate request: %v", err)
-		response.Error = err.Error()
-		return response
-	}
-
-	response.Data, err = db.get(request.ID)
-
-	if err != nil {
-		fmt.Printf("failed get horse names: %v", err)
-		response.Error = err.Error()
-	}
-
-	return response
-}
-
-// createResponse レスポンスBodyを生成
-func createResponse(response *Response) (responseBody string) {
-	json, err := json.Marshal(response)
-	if err != nil {
-		responseBody = `{"error":{"failed json marshal response"}}`
-	}
-
-	responseBody = string(json)
-	return
-}
-
-// handler ApiGatewayからのリクエストを受けつけ、レスポンスを返却する関数
 func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	table := &Table{}
-	table.Table = util.ConnectTable("horse_names", dynamoRegion, dynamoEndpoint)
-
-	fmt.Printf("%v", r)
-
-	response := createResponse(getHorseName(table, r))
-
+	lineMessage := getLineMessage(r)
+	fmt.Printf("%v", lineMessage)
+	fmt.Printf("%v", lineMessage.Message.Text)
 	return events.APIGatewayProxyResponse{
-		Body:       response,
-		StatusCode: 200,
+		Body:       r.Body,
+		StatusCode: lineMessage.Status,
 	}, nil
 }
 
 func init() {
 	util.EnvLoad()
-	dynamoRegion = os.Getenv("DYNAMO_REGION")
-	dynamoEndpoint = os.Getenv("DYNAMO_ENPOINT")
+	channelSecret = os.Getenv("CHANNEL_SECRET")
+	channelToken = os.Getenv("CHANNEL_TOKEN")
 }
 
 func main() {
