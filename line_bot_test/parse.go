@@ -31,7 +31,7 @@ func ParseRequest(channelSecret string, r events.APIGatewayProxyRequest) ([]*lin
 		panic(err)
 	}
 	// Plaintext is a byte array, so convert to string
-	decrypted = string(response.Plaintext[:])
+	decrypted := string(response.Plaintext[:])
 	fmt.Printf("%v\n", decrypted)
 	if !validateSignature(decrypted, r.Headers["X-Line-Signature"], []byte(r.Body)) {
 		fmt.Println("シグネチャの検証に失敗しました。")
