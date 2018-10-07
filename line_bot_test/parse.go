@@ -5,12 +5,15 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 func ParseRequest(channelSecret string, r events.APIGatewayProxyRequest) ([]*linebot.Event, error) {
+	fmt.Printf("%v", r.Headers)
+	fmt.Printf("%v", r.Headers["X-Line-Signature"])
 	//if !validateSignature(channelSecret, r.Headers["X-Line-Signature"], []byte(r.Body)) {
 	//	return nil, linebot.ErrInvalidSignature
 	//}
