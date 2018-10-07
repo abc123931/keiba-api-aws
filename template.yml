@@ -87,6 +87,8 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           DYNAMO_REGION: ap-northeast-1
+          CHANNEL_SECRET: AQICAHgV7FuJVSxQhBf3BpUF8BUNTLPIWQqw06CH4QqRXhlTJQG7qDG3mMYa2uxiFN8heL8WAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMQdoPQOkLd23gef6mAgEQgDuqwQ28BIwd/o8+3idnZeL0rosyMu6JQh6vgf9yonFHAm2UB/2/ZPbMZB9WDmrGQg4oJ1eL2eTA7zbWdA==
+          CHANNEL_TOKEN: AQICAHgV7FuJVSxQhBf3BpUF8BUNTLPIWQqw06CH4QqRXhlTJQEcT/QBCUKax+YqCSeUynU7AAABEDCCAQwGCSqGSIb3DQEHBqCB/jCB+wIBADCB9QYJKoZIhvcNAQcBMB4GCWCGSAFlAwQBLjARBAxGkWNbtjNPodk/KJ0CARCAgcc8x6Pz1n098aHu5yTYa8UxDIdYzbt74mdL7U/4Tuv0gsmjzMpn5AzBufAxYDzhhmujJI6s7VY1p75QtcL+xltzqGdy+0eBCGuq+CP7u5BGxyiFYka1HmB0W8NdgmghBAKgxDkmxIPAr+vn7ClXfhav7oNkP8mu6bKH3hJzJtVZD+KDkT/FZheED1My4YllWrC33bGdAji6W6KxokD5DwhEe7eNV9KilvfnCR4mIvzdEBad3jvFogRctiJyBC1JHZ+PiQ0lcCQI
   BackingLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
