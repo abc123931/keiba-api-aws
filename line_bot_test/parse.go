@@ -8,6 +8,8 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/kms"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
@@ -15,7 +17,23 @@ func ParseRequest(channelSecret string, r events.APIGatewayProxyRequest) ([]*lin
 	fmt.Printf("%v\n", r.Headers)
 	fmt.Printf("%v\n", r.Headers["X-Line-Signature"])
 	fmt.Printf("%v\n", r.Body)
-	if !validateSignature(channelSecret, r.Headers["X-Line-Signature"], []byte(r.Body)) {
+	fmt.Printf("%v\n", channelSecret)
+	kmsClient := kms.New(session.New())
+	decodedBytes, err := base64.StdEncoding.DecodeString(channelSecret)
+	if err != nil {
+		panic(err)
+	}
+	input := &kms.DecryptInput{
+		CiphertextBlob: decodedBytes,
+	}
+	response, err := kmsClient.Decrypt(input)
+	if err != nil {
+		panic(err)
+	}
+	// Plaintext is a byte array, so convert to string
+	decrypted = string(response.Plaintext[:])
+	fmt.Printf("%v\n", decrypted)
+	if !validateSignature(decrypted, r.Headers["X-Line-Signature"], []byte(r.Body)) {
 		fmt.Println("シグネチャの検証に失敗しました。")
 		return nil, linebot.ErrInvalidSignature
 	}

@@ -15,7 +15,7 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:1979b374f0ba7cde68367e07501558e6845b6a3d7f693e16b2e001b7725a3cb7"
+  digest = "1:36776a381d60e69f8ebe1a3d0c9c1f799fba3f68e7dbb8e2403db46ec3355555"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -49,6 +49,7 @@
     "service/dynamodb",
     "service/dynamodb/dynamodbattribute",
     "service/dynamodb/dynamodbiface",
+    "service/kms",
     "service/sts",
   ]
   pruneopts = "UT"
@@ -148,6 +149,7 @@
     "github.com/aws/aws-lambda-go/lambda",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/kms",
     "github.com/guregu/dynamo",
     "github.com/joho/godotenv",
     "github.com/line/line-bot-sdk-go/linebot",
