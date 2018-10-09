@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/abc123931/keiba-api-aws/util"
@@ -17,8 +18,9 @@ var (
 
 // LineMessage lineから送信されたMessageの構造体
 type LineMessage struct {
-	Message *linebot.TextMessage
-	Status  int
+	Message    *linebot.TextMessage
+	ReplyToken string
+	Status     int
 }
 
 // getLineMessage lineからのメッセージを取得する関数
@@ -39,6 +41,7 @@ func getLineMessage(r events.APIGatewayProxyRequest) (lineMessage LineMessage) {
 			message := event.Message
 			if value, ok := message.(*linebot.TextMessage); ok {
 				lineMessage.Message = value
+				lineMessage.ReplyToken = event.ReplyToken
 			} else {
 				lineMessage.Message = nil
 			}
@@ -52,6 +55,16 @@ func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, e
 	lineMessage := getLineMessage(r)
 	fmt.Printf("%v", lineMessage)
 	fmt.Printf("%v", lineMessage.Message.Text)
+	bot, err := linebot.New(
+		channelSecret,
+		channelToken,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err = bot.ReplyMessage(lineMessage.ReplyToken, linebot.NewTextMessage(lineMessage.Message.Text)).Do(); err != nil {
+		log.Print(err)
+	}
 	return events.APIGatewayProxyResponse{
 		Body:       r.Body,
 		StatusCode: lineMessage.Status,
