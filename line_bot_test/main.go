@@ -73,8 +73,8 @@ func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, e
 
 func init() {
 	util.EnvLoad()
-	channelSecret = os.Getenv("CHANNEL_SECRET")
-	channelToken = os.Getenv("CHANNEL_TOKEN")
+	channelSecret = decryptKms(os.Getenv("CHANNEL_SECRET"))
+	channelToken = decryptKms(os.Getenv("CHANNEL_TOKEN"))
 }
 
 func main() {
