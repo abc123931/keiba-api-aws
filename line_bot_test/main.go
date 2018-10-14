@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/abc123931/keiba-api-aws/util"
@@ -21,6 +25,12 @@ type LineMessage struct {
 	Message    *linebot.TextMessage
 	ReplyToken string
 	Status     int
+}
+
+// HorseNameRequest 馬名のリクエスト構造体
+type HorseNameRequest struct {
+	Category string `json:"category"`
+	Name     string `json:"name"`
 }
 
 // getLineMessage lineからのメッセージを取得する関数
@@ -52,6 +62,7 @@ func getLineMessage(r events.APIGatewayProxyRequest) (lineMessage LineMessage) {
 }
 
 func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	httpClient()
 	lineMessage := getLineMessage(r)
 	fmt.Printf("%v", lineMessage)
 	fmt.Printf("%v", lineMessage.Message.Text)
@@ -69,6 +80,20 @@ func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, e
 		Body:       r.Body,
 		StatusCode: lineMessage.Status,
 	}, nil
+}
+
+func httpClient() {
+	values, err := json.Marshal(HorseNameRequest{Category: "horse", Name: "サトノダイヤモンド"})
+	res, err := http.Post("https://xs8k217r0j.execute-api.ap-northeast-1.amazonaws.com/Prod/horsename", "application/json", bytes.NewBuffer(values))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%v", string(body))
 }
 
 func init() {
