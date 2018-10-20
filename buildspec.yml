@@ -21,7 +21,7 @@ phases:
       - type go && go version
 
       # Install golint
-      - go get -u github.com/golang/lint/golint
+      #- go get -u github.com/golang/lint/golint
 
       # install dep
       - go get -u github.com/golang/dep/cmd/dep
@@ -37,7 +37,7 @@ phases:
       - dep ensure
 
       # Ensure code passes all lint tests
-      - golint -set_exit_status
+      #- golint -set_exit_status
 
       # Run all tests included with our application
       - go test ./gethorsename/
