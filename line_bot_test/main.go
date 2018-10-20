@@ -93,6 +93,7 @@ func httpClient() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("%v", body)
 	fmt.Printf("%v", string(body))
 }
 
