@@ -30,7 +30,7 @@ type LineMessage struct {
 // HorseNameRequest 馬名のリクエスト構造体
 type HorseNameRequest struct {
 	Category string `json:"category"`
-	Name     string `json:"name"`
+	Name     string `json:"horse_name"`
 }
 
 // getLineMessage lineからのメッセージを取得する関数
