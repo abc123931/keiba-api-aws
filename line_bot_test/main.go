@@ -29,8 +29,20 @@ type LineMessage struct {
 
 // HorseNameRequest 馬名のリクエスト構造体
 type HorseNameRequest struct {
+	Category  string `json:"category"`
+	HorseName string `json:"horse_name"`
+}
+
+// HorseNameData gethorsenameのレスポンスのdataの構造体
+type HorseNameData struct {
+	Data []HorseNameResponse `json:"data"`
+}
+
+// HorseNameResponse 馬名のリクエスト構造体
+type HorseNameResponse struct {
 	Category string `json:"category"`
-	Name     string `json:"horse_name"`
+	Name     string `json:"name"`
+	ID       string `json:"id"`
 }
 
 // getLineMessage lineからのメッセージを取得する関数
@@ -83,7 +95,7 @@ func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, e
 }
 
 func httpClient() {
-	values, err := json.Marshal(HorseNameRequest{Category: "horse", Name: "サトノダイヤモンド"})
+	values, err := json.Marshal(HorseNameRequest{Category: "horse", HorseName: "サトノダイヤモンド"})
 	res, err := http.Post("https://xs8k217r0j.execute-api.ap-northeast-1.amazonaws.com/Prod/horsename", "application/json", bytes.NewBuffer(values))
 	if err != nil {
 		log.Fatal(err)
@@ -93,8 +105,13 @@ func httpClient() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%v", body)
-	fmt.Printf("%v", string(body))
+	horseNameData := &HorseNameData{}
+	err = json.Unmarshal(body, horseNameData)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Printf("failed unmarshal request: %v", err)
+	}
+	fmt.Printf("%v", horseNameData.Data[0].ID)
 }
 
 func init() {

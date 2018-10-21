@@ -54,6 +54,8 @@ phases:
       - go build -o main
       - cd ../line_bot_test
       - go build -o main
+      - cd ../getcourseresult
+      - go build -o main
       - cd ../
 
       # upload template to s3
