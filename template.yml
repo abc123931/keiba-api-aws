@@ -76,6 +76,7 @@ Resources:
       CodeUri: line_bot_test/
       Handler: main
       Runtime: go1.x
+      Timeout: 10
       FunctionName: line-bot-test
       Role: !GetAtt BackingLambdaExecutionRole.Arn
       Events:
