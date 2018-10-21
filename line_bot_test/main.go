@@ -176,7 +176,20 @@ func httpClient(horseName string) string {
 		"中京成績:" + CourseResultData.Data.TyukyoTurf + "\n" +
 		"京都成績:" + CourseResultData.Data.KyotoTurf + "\n" +
 		"阪神成績:" + CourseResultData.Data.HanshinTurf + "\n" +
-		"小倉成績:" + CourseResultData.Data.KokuraTurf + "\n"
+		"小倉成績:" + CourseResultData.Data.KokuraTurf + "\n\n" +
+		"(距離成績)" + "\n" +
+		"芝1000m:" + CourseResultData.Data.ThousandTurf + "\n" +
+		"芝1200m:" + CourseResultData.Data.TwelveHundredTurf + "\n" +
+		"芝1400m:" + CourseResultData.Data.FourteenHundredTurf + "\n" +
+		"芝1600m:" + CourseResultData.Data.SixteenHundredTurf + "\n" +
+		"芝1800m:" + CourseResultData.Data.EighteenHundredTurf + "\n" +
+		"芝2000m:" + CourseResultData.Data.TwoThousandTurf + "\n" +
+		"芝2200m:" + CourseResultData.Data.TwentyTwoHundredTurf + "\n" +
+		"芝2400m:" + CourseResultData.Data.TwentyFourHundredTurf + "\n" +
+		"芝2500m:" + CourseResultData.Data.TwentyFiveHundredTurf + "\n" +
+		"芝3000m:" + CourseResultData.Data.ThreeThousandTurf + "\n" +
+		"芝3200m:" + CourseResultData.Data.ThirtyTwoHundredTurf + "\n" +
+		"芝3600m:" + CourseResultData.Data.ThirtySixHundredTurf
 
 	return responseMessage
 }
