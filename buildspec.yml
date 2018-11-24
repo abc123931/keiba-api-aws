@@ -41,6 +41,8 @@ phases:
 
       # Run all tests included with our application
       - go test ./gethorsename/
+      - go test ./gethorseid/
+      - go test ./line_bot_test/
 
   build:
     commands:

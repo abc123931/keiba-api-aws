@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"reflect"
 
 	"github.com/abc123931/keiba-api-aws/util"
 	"github.com/aws/aws-lambda-go/events"
@@ -82,10 +83,48 @@ type CourseResult struct {
 	ThirtySixHundredTurf  string `dynamo:"3600_turf" json:"3600_turf"`
 }
 
+var courseResultName = map[string]string{
+	"SapporoTurf":           "札幌成績",
+	"HakodateTurf":          "函館成績",
+	"FukushimaTurf":         "福島成績",
+	"NigataTurf":            "新潟成績",
+	"TokyoTurf":             "東京成績",
+	"NakayamaTurf":          "中山成績",
+	"TyukyoTurf":            "中京成績",
+	"KyotoTurf":             "京都成績",
+	"HanshinTurf":           "阪神成績",
+	"KokuraTurf":            "小倉成績",
+	"ThousandTurf":          "芝1000m",
+	"TwelveHundredTurf":     "芝1200m",
+	"FourteenHundredTurf":   "芝1400m",
+	"SixteenHundredTurf":    "芝1600m",
+	"EighteenHundredTurf":   "芝1800m",
+	"TwoThousandTurf":       "芝2000m",
+	"TwentyTwoHundredTurf":  "芝2200m",
+	"TwentyFourHundredTurf": "芝2400m",
+	"TwentyFiveHundredTurf": "芝2500m",
+	"ThreeThousandTurf":     "芝3000m",
+	"ThirtyTwoHundredTurf":  "芝3200m",
+	"ThirtySixHundredTurf":  "芝3600m",
+}
+
+// ParseRequestInterface parseRequest関数を持つinterface
+type ParseRequestInterface interface {
+	parseRequest(channelSecret string, r events.APIGatewayProxyRequest) ([]*linebot.Event, error)
+}
+
+// ParseRequestStruct テストように作成
+type ParseRequestStruct struct{}
+
+func (p *ParseRequestStruct) parseRequest(channelSecret string, r events.APIGatewayProxyRequest) ([]*linebot.Event, error) {
+	event, err := ParseRequest(channelSecret, r)
+	return event, err
+}
+
 // getLineMessage lineからのメッセージを取得する関数
-func getLineMessage(r events.APIGatewayProxyRequest) (lineMessage LineMessage) {
+func getLineMessage(p ParseRequestInterface, r events.APIGatewayProxyRequest) (lineMessage LineMessage) {
 	lineMessage.Status = 200
-	events, err := ParseRequest(channelSecret, r)
+	events, err := p.parseRequest(channelSecret, r)
 	if err != nil {
 		if err == linebot.ErrInvalidSignature {
 			lineMessage.Status = 400
@@ -111,8 +150,9 @@ func getLineMessage(r events.APIGatewayProxyRequest) (lineMessage LineMessage) {
 }
 
 func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	lineMessage := getLineMessage(r)
-	responseMessage := httpClient(lineMessage.Message.Text)
+	lineMessage := getLineMessage(&ParseRequestStruct{}, r)
+	id := httpClientGetId(lineMessage.Message.Text)
+	responseMessage := httpClientCourseResult(id)
 	fmt.Printf("%v", lineMessage)
 	fmt.Printf("%v", lineMessage.Message.Text)
 	bot, err := linebot.New(
@@ -120,10 +160,12 @@ func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, e
 		channelToken,
 	)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("%v\n", err)
+		lineMessage.Status = 500
 	}
 	if _, err = bot.ReplyMessage(lineMessage.ReplyToken, linebot.NewTextMessage(responseMessage)).Do(); err != nil {
-		log.Print(err)
+		fmt.Printf("%v\n", err)
+		lineMessage.Status = 500
 	}
 	return events.APIGatewayProxyResponse{
 		Body:       r.Body,
@@ -131,11 +173,12 @@ func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, e
 	}, nil
 }
 
-func httpClient(horseName string) string {
+// httpClientGetId 馬名からidを取得する関数
+func httpClientGetId(horseName string) string {
 	values, err := json.Marshal(HorseNameRequest{Category: "horse", HorseName: horseName})
 	res, err := http.Post("https://xs8k217r0j.execute-api.ap-northeast-1.amazonaws.com/Prod/horsename", "application/json", bytes.NewBuffer(values))
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("%v\n", err)
 	}
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
@@ -149,13 +192,18 @@ func httpClient(horseName string) string {
 		fmt.Printf("failed unmarshal request: %v", err)
 	}
 
-	values, err = json.Marshal(CourseResultRequest{ID: horseNameData.Data[0].ID})
-	res, err = http.Post("https://xs8k217r0j.execute-api.ap-northeast-1.amazonaws.com/Prod/courseresult", "application/json", bytes.NewBuffer(values))
+	return horseNameData.Data[0].ID
+}
+
+// httpClientCourseResult idからその馬のコース成績を取得する関数
+func httpClientCourseResult(id string) string {
+	values, err := json.Marshal(CourseResultRequest{ID: id})
+	res, err := http.Post("https://xs8k217r0j.execute-api.ap-northeast-1.amazonaws.com/Prod/courseresult", "application/json", bytes.NewBuffer(values))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer res.Body.Close()
-	body, err = ioutil.ReadAll(res.Body)
+	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -166,30 +214,22 @@ func httpClient(horseName string) string {
 		log.Fatal(err)
 		fmt.Printf("failed unmarshal request: %v", err)
 	}
+	fmt.Printf("CourseResultData: %v\n", CourseResultData.Data)
+	v := reflect.ValueOf(CourseResultData.Data)
+	responseMessage := ""
 
-	responseMessage := "札幌成績:" + CourseResultData.Data.SapporoTurf + "\n" +
-		"函館成績:" + CourseResultData.Data.HakodateTurf + "\n" +
-		"福島成績:" + CourseResultData.Data.FukushimaTurf + "\n" +
-		"新潟成績:" + CourseResultData.Data.NigataTurf + "\n" +
-		"東京成績:" + CourseResultData.Data.TokyoTurf + "\n" +
-		"中山成績:" + CourseResultData.Data.NakayamaTurf + "\n" +
-		"中京成績:" + CourseResultData.Data.TyukyoTurf + "\n" +
-		"京都成績:" + CourseResultData.Data.KyotoTurf + "\n" +
-		"阪神成績:" + CourseResultData.Data.HanshinTurf + "\n" +
-		"小倉成績:" + CourseResultData.Data.KokuraTurf + "\n\n" +
-		"(距離成績)" + "\n" +
-		"芝1000m:" + CourseResultData.Data.ThousandTurf + "\n" +
-		"芝1200m:" + CourseResultData.Data.TwelveHundredTurf + "\n" +
-		"芝1400m:" + CourseResultData.Data.FourteenHundredTurf + "\n" +
-		"芝1600m:" + CourseResultData.Data.SixteenHundredTurf + "\n" +
-		"芝1800m:" + CourseResultData.Data.EighteenHundredTurf + "\n" +
-		"芝2000m:" + CourseResultData.Data.TwoThousandTurf + "\n" +
-		"芝2200m:" + CourseResultData.Data.TwentyTwoHundredTurf + "\n" +
-		"芝2400m:" + CourseResultData.Data.TwentyFourHundredTurf + "\n" +
-		"芝2500m:" + CourseResultData.Data.TwentyFiveHundredTurf + "\n" +
-		"芝3000m:" + CourseResultData.Data.ThreeThousandTurf + "\n" +
-		"芝3200m:" + CourseResultData.Data.ThirtyTwoHundredTurf + "\n" +
-		"芝3600m:" + CourseResultData.Data.ThirtySixHundredTurf
+	// レスポンスメッセージの生成
+	for i := 0; i < v.NumField(); i++ {
+		if v.Field(i).Interface() != "0" && v.Type().Field(i).Name != "ID" {
+			responseMessage = responseMessage +
+				courseResultName[v.Type().Field(i).Name] + ":" +
+				v.Field(i).Interface().(string) + "\n"
+		}
+
+		if v.Type().Field(i).Name == "KokuraTurf" {
+			responseMessage = responseMessage + "\n"
+		}
+	}
 
 	return responseMessage
 }

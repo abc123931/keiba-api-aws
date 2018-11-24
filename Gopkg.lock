@@ -118,6 +118,14 @@
   version = "v1.2.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:34ed0db2b263a112b757abe95cde852ffe49f6edefc787cc8bce4aa710e96c88"
+  name = "github.com/karupanerura/go-mock-http-response"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7c242a447d4553c81d3698330830cb22a178d60d"
+
+[[projects]]
   digest = "1:fc8b9119ac036faaab206f517421116d5cf2eaf35d213f6b5d8e2c74dba6f76c"
   name = "github.com/line/line-bot-sdk-go"
   packages = ["linebot"]
@@ -152,6 +160,7 @@
     "github.com/aws/aws-sdk-go/service/kms",
     "github.com/guregu/dynamo",
     "github.com/joho/godotenv",
+    "github.com/karupanerura/go-mock-http-response",
     "github.com/line/line-bot-sdk-go/linebot",
     "gopkg.in/go-playground/validator.v9",
   ]

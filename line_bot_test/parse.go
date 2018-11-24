@@ -13,11 +13,8 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
+// ParseRequest リクエストをパースする関数
 func ParseRequest(channelSecret string, r events.APIGatewayProxyRequest) ([]*linebot.Event, error) {
-	fmt.Printf("%v\n", r.Headers)
-	fmt.Printf("%v\n", r.Headers["X-Line-Signature"])
-	fmt.Printf("%v\n", r.Body)
-	fmt.Printf("%v\n", channelSecret)
 	if !validateSignature(channelSecret, r.Headers["X-Line-Signature"], []byte(r.Body)) {
 		fmt.Println("シグネチャの検証に失敗しました。")
 		return nil, linebot.ErrInvalidSignature
