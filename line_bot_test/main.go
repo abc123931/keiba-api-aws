@@ -228,21 +228,26 @@ func httpClientCourseResult(name string) string {
 	v := reflect.ValueOf(CourseResultData.Data)
 	responseMessage := ""
 
+	courseCount := 0
 	distanceCount := 0
 	babaCount := 0
 	// レスポンスメッセージの生成
 	for i := 0; i < v.NumField(); i++ {
 		if _, ok := courseResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" &&
 			v.Type().Field(i).Name != "Name" && v.Field(i).Interface() != "" && ok {
+			if courseCount == 0 {
+				responseMessage = responseMessage + "(コース成績)\n"
+			}
 			responseMessage = responseMessage +
 				courseResultName[v.Type().Field(i).Name] + ":" +
 				v.Field(i).Interface().(string) + "\n"
+			courseCount++
 		}
 
 		if _, ok := distanceResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" &&
 			v.Field(i).Interface() != "" && ok {
 			if distanceCount == 0 {
-				responseMessage = responseMessage + "(距離成績)\n"
+				responseMessage = responseMessage + "\n(距離成績)\n"
 			}
 
 			responseMessage = responseMessage +
@@ -255,7 +260,7 @@ func httpClientCourseResult(name string) string {
 		if _, ok := babaResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" &&
 			v.Field(i).Interface() != "" && ok {
 			if babaCount == 0 {
-				responseMessage = responseMessage + "(馬場成績)\n"
+				responseMessage = responseMessage + "\n(馬場成績)\n"
 			}
 
 			responseMessage = responseMessage +
