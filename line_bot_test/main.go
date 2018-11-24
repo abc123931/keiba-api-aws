@@ -214,13 +214,12 @@ func httpClientCourseResult(id string) string {
 		log.Fatal(err)
 		fmt.Printf("failed unmarshal request: %v", err)
 	}
-	fmt.Printf("CourseResultData: %v\n", CourseResultData.Data)
 	v := reflect.ValueOf(CourseResultData.Data)
 	responseMessage := ""
 
 	// レスポンスメッセージの生成
 	for i := 0; i < v.NumField(); i++ {
-		if v.Field(i).Interface() != "0" && v.Type().Field(i).Name != "ID" {
+		if v.Field(i).Interface() != "" && v.Type().Field(i).Name != "ID" {
 			responseMessage = responseMessage +
 				courseResultName[v.Type().Field(i).Name] + ":" +
 				v.Field(i).Interface().(string) + "\n"
