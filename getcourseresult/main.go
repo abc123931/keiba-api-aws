@@ -46,7 +46,7 @@ type CourseResult struct {
 	RyoTurf               string `dynamo:"ryo_turf" json:"ryo_turf"`
 	YayaomoTurf           string `dynamo:"yayaomo_turf" json:"yayaomo_turf"`
 	OmoTurf               string `dynamo:"omo_turf" json:"omo_turf"`
-	FuryoTurf             string `dynamo:"furyo_turf" json:"furyo_turf"`
+	HuryoTurf             string `dynamo:"huryo_turf" json:"huryo_turf"`
 }
 
 // Table dynamo.Table用の構造体

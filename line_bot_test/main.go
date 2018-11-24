@@ -61,7 +61,7 @@ type CourseResult struct {
 	Name                  string `dynamo:"name" json:"name"`
 	SapporoTurf           string `dynamo:"sapporo_turf" json:"sapporo_turf"`
 	HakodateTurf          string `dynamo:"hakodate_turf" json:"hakodate_turf"`
-	FukushimaTurf         string `dynamo:"fukushima_turf" json:"fukushima_turf"`
+	HukushimaTurf         string `dynamo:"hukushima_turf" json:"hukushima_turf"`
 	NigataTurf            string `dynamo:"nigata_turf" json:"nigata_turf"`
 	TokyoTurf             string `dynamo:"tokyo_turf" json:"tokyo_turf"`
 	NakayamaTurf          string `dynamo:"nakayama_turf" json:"nakayama_turf"`
@@ -84,13 +84,13 @@ type CourseResult struct {
 	RyoTurf               string `dynamo:"ryo_turf" json:"ryo_turf"`
 	YayaomoTurf           string `dynamo:"yayaomo_turf" json:"yayaomo_turf"`
 	OmoTurf               string `dynamo:"omo_turf" json:"omo_turf"`
-	FuryoTurf             string `dynamo:"furyo_turf" json:"furyo_turf"`
+	HuryoTurf             string `dynamo:"huryo_turf" json:"huryo_turf"`
 }
 
 var courseResultName = map[string]string{
 	"SapporoTurf":   "札幌成績",
 	"HakodateTurf":  "函館成績",
-	"FukushimaTurf": "福島成績",
+	"HukushimaTurf": "福島成績",
 	"NigataTurf":    "新潟成績",
 	"TokyoTurf":     "東京成績",
 	"NakayamaTurf":  "中山成績",
@@ -119,7 +119,7 @@ var babaResultName = map[string]string{
 	"RyoTurf":     "良馬場",
 	"YayaomoTurf": "稍重馬場",
 	"OmoTurf":     "重馬場",
-	"FuryoTurf":   "不良馬場",
+	"HuryoTurf":   "不良馬場",
 }
 
 // ParseRequestInterface parseRequest関数を持つinterface
