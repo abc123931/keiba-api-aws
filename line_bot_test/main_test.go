@@ -29,12 +29,20 @@ func TestHandler(t *testing.T) {
 	// })
 
 	t.Run("httpClientCourseResult正常終了", func(t *testing.T) {
-		mockResponse(http.StatusOK, map[string]string{"Content-Type": "application/json"}, []byte(`{"data":{"name":"ブラストワンピース","sapporo_turf":"0","hakodate_turf":"0","fukushima_turf":"0","nigata_turf":"0","tokyo_turf":"0","nakayama_turf":"0","tyukyo_turf":"0","kyoto_turf":"(1-1-0-1)","hanshin_turf":"0","kokura_turf":"0","1000_turf":"(0-0-0-1)","1200_turf":"0","1400_turf":"0","1600_turf":"0","1800_turf":"0","2000_turf":"0","2200_turf":"0","2400_turf":"0","2500_turf":"0","3000_turf":"0","3200_turf":"0","3600_turf":"0","ryo_turf":"(1-1-1-1)","yayaomo_turf":"0","omo_turf":"0","furyo_turf":"0"},"error":""}`))
+		mockResponse(http.StatusOK, map[string]string{"Content-Type": "application/json"}, []byte(`{"data":{"name":"ブラストワンピース","sapporo_turf":"0","hakodate_turf":"0","hukushima_turf":"0","nigata_turf":"0","tokyo_turf":"0","nakayama_turf":"0","tyukyo_turf":"0","kyoto_turf":"(1-1-0-1)","hanshin_turf":"0","kokura_turf":"0","1000_turf":"(0-0-0-1)","1200_turf":"0","1400_turf":"0","1600_turf":"0","1800_turf":"0","2000_turf":"0","2200_turf":"0","2400_turf":"0","2500_turf":"0","3000_turf":"0","3200_turf":"0","3600_turf":"0","ryo_turf":"(1-1-1-1)","yayaomo_turf":"0","omo_turf":"0","huryo_turf":"0"},"error":""}`))
 		res := httpClientCourseResult("13106101")
-		// fmt.Printf("courseResult: %v\n", res)
 		expected := "京都成績:(1-1-0-1)\n" +
 			"(距離成績)\n芝1000m:(0-0-0-1)\n" +
 			"(馬場成績)\n良馬場:(1-1-1-1)\n"
+		if !reflect.DeepEqual(res, expected) {
+			t.Fatalf("response not same expected: expected is %v response is  %v", expected, res)
+		}
+	})
+
+	t.Run("httpClientCourseResult馬が存在しない場合", func(t *testing.T) {
+		mockResponse(http.StatusOK, map[string]string{"Content-Type": "application/json"}, []byte(`{"data":{"name":"ブラストワンピース","sapporo_turf":"0","hakodate_turf":"0","hukushima_turf":"0","nigata_turf":"0","tokyo_turf":"0","nakayama_turf":"0","tyukyo_turf":"0","kyoto_turf":"0","hanshin_turf":"0","kokura_turf":"0","1000_turf":"","1200_turf":"0","1400_turf":"0","1600_turf":"0","1800_turf":"0","2000_turf":"0","2200_turf":"0","2400_turf":"0","2500_turf":"0","3000_turf":"0","3200_turf":"0","3600_turf":"0","ryo_turf":"","yayaomo_turf":"0","omo_turf":"0","huryo_turf":"0"},"error":""}`))
+		res := httpClientCourseResult("ブラストワンピース")
+		expected := "そんな馬はいませんよ"
 		if !reflect.DeepEqual(res, expected) {
 			t.Fatalf("response not same expected: expected is %v response is  %v", expected, res)
 		}

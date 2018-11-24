@@ -232,13 +232,15 @@ func httpClientCourseResult(name string) string {
 	babaCount := 0
 	// レスポンスメッセージの生成
 	for i := 0; i < v.NumField(); i++ {
-		if _, ok := courseResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" && v.Type().Field(i).Name != "Name" && ok {
+		if _, ok := courseResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" &&
+			v.Type().Field(i).Name != "Name" && v.Field(i).Interface() != "" && ok {
 			responseMessage = responseMessage +
 				courseResultName[v.Type().Field(i).Name] + ":" +
 				v.Field(i).Interface().(string) + "\n"
 		}
 
-		if _, ok := distanceResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" && ok {
+		if _, ok := distanceResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" &&
+			v.Field(i).Interface() != "" && ok {
 			if distanceCount == 0 {
 				responseMessage = responseMessage + "(距離成績)\n"
 			}
@@ -250,7 +252,8 @@ func httpClientCourseResult(name string) string {
 			distanceCount++
 		}
 
-		if _, ok := babaResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" && ok {
+		if _, ok := babaResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" &&
+			v.Field(i).Interface() != "" && ok {
 			if babaCount == 0 {
 				responseMessage = responseMessage + "(馬場成績)\n"
 			}
@@ -261,6 +264,10 @@ func httpClientCourseResult(name string) string {
 
 			babaCount++
 		}
+	}
+
+	if responseMessage == "" {
+		responseMessage = "そんな馬はいませんよ"
 	}
 
 	return responseMessage
