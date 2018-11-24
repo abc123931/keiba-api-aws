@@ -19,21 +19,22 @@ func TestHandler(t *testing.T) {
 		}
 	})
 
-	t.Run("httpClientGetId正常終了", func(t *testing.T) {
-		mockResponse(http.StatusOK, map[string]string{"Content-Type": "application/json"}, []byte(`{"data":[{"category":"horse","id":"13106101","name":"サトノダイヤモンド"}],"error":""}`))
-		res := httpClientGetId("サトノダイヤモンド")
-		expected := "13106101"
-		if !reflect.DeepEqual(res, expected) {
-			t.Fatalf("response not same expected: expected is %v response is  %v", expected, res)
-		}
-	})
+	// t.Run("httpClientGetId正常終了", func(t *testing.T) {
+	// 	mockResponse(http.StatusOK, map[string]string{"Content-Type": "application/json"}, []byte(`{"data":[{"category":"horse","id":"13106101","name":"サトノダイヤモンド"}],"error":""}`))
+	// 	res := httpClientGetId("サトノダイヤモンド")
+	// 	expected := "13106101"
+	// 	if !reflect.DeepEqual(res, expected) {
+	// 		t.Fatalf("response not same expected: expected is %v response is  %v", expected, res)
+	// 	}
+	// })
 
 	t.Run("httpClientCourseResult正常終了", func(t *testing.T) {
-		mockResponse(http.StatusOK, map[string]string{"Content-Type": "application/json"}, []byte(`{"data":{"id":"13106101","sapporo_turf":"","hakodate_turf":"","fukushima_turf":"","nigata_turf":"","tokyo_turf":"","nakayama_turf":"","tyukyo_turf":"","kyoto_turf":"(1-1-0-1)","hanshin_turf":"","kokura_turf":"","1000_turf":"(0-0-0-1)","1200_turf":"","1400_turf":"","1600_turf":"","1800_turf":"","2000_turf":"","2200_turf":"","2400_turf":"","2500_turf":"","3000_turf":"","3200_turf":"","3600_turf":""},"error":""}`))
+		mockResponse(http.StatusOK, map[string]string{"Content-Type": "application/json"}, []byte(`{"data":{"name":"ブラストワンピース","sapporo_turf":"0","hakodate_turf":"0","fukushima_turf":"0","nigata_turf":"0","tokyo_turf":"0","nakayama_turf":"0","tyukyo_turf":"0","kyoto_turf":"(1-1-0-1)","hanshin_turf":"0","kokura_turf":"0","1000_turf":"(0-0-0-1)","1200_turf":"0","1400_turf":"0","1600_turf":"0","1800_turf":"0","2000_turf":"0","2200_turf":"0","2400_turf":"0","2500_turf":"0","3000_turf":"0","3200_turf":"0","3600_turf":"0","ryo_turf":"(1-1-1-1)","yayaomo_turf":"0","omo_turf":"0","furyo_turf":"0"},"error":""}`))
 		res := httpClientCourseResult("13106101")
 		// fmt.Printf("courseResult: %v\n", res)
-		expected := "京都成績:(1-1-0-1)\n\n" +
-			"芝1000m:(0-0-0-1)\n"
+		expected := "京都成績:(1-1-0-1)\n" +
+			"(距離成績)\n芝1000m:(0-0-0-1)\n" +
+			"(馬場成績)\n良馬場:(1-1-1-1)\n"
 		if !reflect.DeepEqual(res, expected) {
 			t.Fatalf("response not same expected: expected is %v response is  %v", expected, res)
 		}

@@ -20,7 +20,7 @@ var (
 
 // CourseResult コース成績用構造体
 type CourseResult struct {
-	ID                    string `dynamo:"id" json:"id"`
+	Name                  string `dynamo:"name" json:"name"`
 	SapporoTurf           string `dynamo:"sapporo_turf" json:"sapporo_turf"`
 	HakodateTurf          string `dynamo:"hakodate_turf" json:"hakodate_turf"`
 	FukushimaTurf         string `dynamo:"fukushima_turf" json:"fukushima_turf"`
@@ -52,12 +52,12 @@ type Table struct {
 
 // DbConnect Table用のインターフェース
 type DbConnect interface {
-	get(id string) (courseResult CourseResult, err error)
+	get(name string) (courseResult CourseResult, err error)
 }
 
 // Request リクエスト用の構造体
 type Request struct {
-	ID string `json:"id" validate:"required"`
+	Name string `json:"name" validate:"required"`
 }
 
 // Response レスポンス用の構造体
@@ -67,11 +67,9 @@ type Response struct {
 }
 
 // get DbConnectインターフェースを利用するための関数
-func (table *Table) get(id string) (courseResult CourseResult, err error) {
+func (table *Table) get(name string) (courseResult CourseResult, err error) {
 	courseResult = CourseResult{}
-	fmt.Printf("%v\n", id)
-	err = table.Table.Get("id", id).One(&courseResult)
-	fmt.Printf("%v\n", id)
+	err = table.Table.Get("horse_name", name).One(&courseResult)
 
 	return
 }
@@ -97,7 +95,7 @@ func getCourseResult(db DbConnect, r events.APIGatewayProxyRequest) *Response {
 		return response
 	}
 
-	response.Data, err = db.get(request.ID)
+	response.Data, err = db.get(request.Name)
 
 	if err != nil {
 		fmt.Printf("failed get horse names: %v", err)

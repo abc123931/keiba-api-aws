@@ -36,7 +36,7 @@ type HorseNameRequest struct {
 
 // CourseResultRequest 馬名のリクエスト構造体
 type CourseResultRequest struct {
-	ID string `json:"id"`
+	Name string `json:"name"`
 }
 
 // HorseNameData gethorsenameのレスポンスのdataの構造体
@@ -58,7 +58,7 @@ type HorseNameResponse struct {
 
 // CourseResult コース成績用構造体
 type CourseResult struct {
-	ID                    string `dynamo:"id" json:"id"`
+	Name                  string `dynamo:"name" json:"name"`
 	SapporoTurf           string `dynamo:"sapporo_turf" json:"sapporo_turf"`
 	HakodateTurf          string `dynamo:"hakodate_turf" json:"hakodate_turf"`
 	FukushimaTurf         string `dynamo:"fukushima_turf" json:"fukushima_turf"`
@@ -81,19 +81,26 @@ type CourseResult struct {
 	ThreeThousandTurf     string `dynamo:"3000_turf" json:"3000_turf"`
 	ThirtyTwoHundredTurf  string `dynamo:"3200_turf" json:"3200_turf"`
 	ThirtySixHundredTurf  string `dynamo:"3600_turf" json:"3600_turf"`
+	RyoTurf               string `dynamo:"ryo_turf" json:"ryo_turf"`
+	YayaomoTurf           string `dynamo:"yayaomo_turf" json:"yayaomo_turf"`
+	OmoTurf               string `dynamo:"omo_turf" json:"omo_turf"`
+	FuryoTurf             string `dynamo:"furyo_turf" json:"furyo_turf"`
 }
 
 var courseResultName = map[string]string{
-	"SapporoTurf":           "札幌成績",
-	"HakodateTurf":          "函館成績",
-	"FukushimaTurf":         "福島成績",
-	"NigataTurf":            "新潟成績",
-	"TokyoTurf":             "東京成績",
-	"NakayamaTurf":          "中山成績",
-	"TyukyoTurf":            "中京成績",
-	"KyotoTurf":             "京都成績",
-	"HanshinTurf":           "阪神成績",
-	"KokuraTurf":            "小倉成績",
+	"SapporoTurf":   "札幌成績",
+	"HakodateTurf":  "函館成績",
+	"FukushimaTurf": "福島成績",
+	"NigataTurf":    "新潟成績",
+	"TokyoTurf":     "東京成績",
+	"NakayamaTurf":  "中山成績",
+	"TyukyoTurf":    "中京成績",
+	"KyotoTurf":     "京都成績",
+	"HanshinTurf":   "阪神成績",
+	"KokuraTurf":    "小倉成績",
+}
+
+var distanceResultName = map[string]string{
 	"ThousandTurf":          "芝1000m",
 	"TwelveHundredTurf":     "芝1200m",
 	"FourteenHundredTurf":   "芝1400m",
@@ -106,6 +113,13 @@ var courseResultName = map[string]string{
 	"ThreeThousandTurf":     "芝3000m",
 	"ThirtyTwoHundredTurf":  "芝3200m",
 	"ThirtySixHundredTurf":  "芝3600m",
+}
+
+var babaResultName = map[string]string{
+	"RyoTurf":     "良馬場",
+	"YayaomoTurf": "稍重馬場",
+	"OmoTurf":     "重馬場",
+	"FuryoTurf":   "不良馬場",
 }
 
 // ParseRequestInterface parseRequest関数を持つinterface
@@ -151,10 +165,7 @@ func getLineMessage(p ParseRequestInterface, r events.APIGatewayProxyRequest) (l
 
 func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	lineMessage := getLineMessage(&ParseRequestStruct{}, r)
-	id := httpClientGetId(lineMessage.Message.Text)
-	responseMessage := httpClientCourseResult(id)
-	fmt.Printf("%v", lineMessage)
-	fmt.Printf("%v", lineMessage.Message.Text)
+	responseMessage := httpClientCourseResult(lineMessage.Message.Text)
 	bot, err := linebot.New(
 		channelSecret,
 		channelToken,
@@ -174,30 +185,30 @@ func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, e
 }
 
 // httpClientGetId 馬名からidを取得する関数
-func httpClientGetId(horseName string) string {
-	values, err := json.Marshal(HorseNameRequest{Category: "horse", HorseName: horseName})
-	res, err := http.Post("https://xs8k217r0j.execute-api.ap-northeast-1.amazonaws.com/Prod/horsename", "application/json", bytes.NewBuffer(values))
-	if err != nil {
-		fmt.Printf("%v\n", err)
-	}
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	horseNameData := &HorseNameData{}
-	err = json.Unmarshal(body, horseNameData)
-	if err != nil {
-		log.Fatal(err)
-		fmt.Printf("failed unmarshal request: %v", err)
-	}
+// func httpClientGetId(horseName string) string {
+// 	values, err := json.Marshal(HorseNameRequest{Category: "horse", HorseName: horseName})
+// 	res, err := http.Post("https://xs8k217r0j.execute-api.ap-northeast-1.amazonaws.com/Prod/horsename", "application/json", bytes.NewBuffer(values))
+// 	if err != nil {
+// 		fmt.Printf("%v\n", err)
+// 	}
+// 	defer res.Body.Close()
+// 	body, err := ioutil.ReadAll(res.Body)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	horseNameData := &HorseNameData{}
+// 	err = json.Unmarshal(body, horseNameData)
+// 	if err != nil {
+// 		fmt.Printf("failed unmarshal request: %v", err)
+// 		log.Fatal(err)
+// 	}
 
-	return horseNameData.Data[0].ID
-}
+// 	return horseNameData.Data[0].ID
+// }
 
 // httpClientCourseResult idからその馬のコース成績を取得する関数
-func httpClientCourseResult(id string) string {
-	values, err := json.Marshal(CourseResultRequest{ID: id})
+func httpClientCourseResult(name string) string {
+	values, err := json.Marshal(CourseResultRequest{Name: name})
 	res, err := http.Post("https://xs8k217r0j.execute-api.ap-northeast-1.amazonaws.com/Prod/courseresult", "application/json", bytes.NewBuffer(values))
 	if err != nil {
 		log.Fatal(err)
@@ -211,26 +222,56 @@ func httpClientCourseResult(id string) string {
 	CourseResultData := &CourseResultData{}
 	err = json.Unmarshal(body, CourseResultData)
 	if err != nil {
-		log.Fatal(err)
 		fmt.Printf("failed unmarshal request: %v", err)
+		log.Fatal(err)
 	}
 	v := reflect.ValueOf(CourseResultData.Data)
 	responseMessage := ""
 
+	distanceCount := 0
+	babaCount := 0
 	// レスポンスメッセージの生成
 	for i := 0; i < v.NumField(); i++ {
-		if v.Field(i).Interface() != "" && v.Type().Field(i).Name != "ID" {
+		if _, ok := courseResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" && v.Type().Field(i).Name != "Name" && ok {
 			responseMessage = responseMessage +
 				courseResultName[v.Type().Field(i).Name] + ":" +
 				v.Field(i).Interface().(string) + "\n"
 		}
 
-		if v.Type().Field(i).Name == "KokuraTurf" {
-			responseMessage = responseMessage + "\n"
+		if _, ok := distanceResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" && ok {
+			if distanceCount == 0 {
+				responseMessage = responseMessage + "(距離成績)\n"
+			}
+
+			responseMessage = responseMessage +
+				distanceResultName[v.Type().Field(i).Name] + ":" +
+				v.Field(i).Interface().(string) + "\n"
+
+			distanceCount++
+		}
+
+		if _, ok := babaResultName[v.Type().Field(i).Name]; v.Field(i).Interface() != "0" && ok {
+			if babaCount == 0 {
+				responseMessage = responseMessage + "(馬場成績)\n"
+			}
+
+			responseMessage = responseMessage +
+				babaResultName[v.Type().Field(i).Name] + ":" +
+				v.Field(i).Interface().(string) + "\n"
+
+			babaCount++
 		}
 	}
 
 	return responseMessage
+}
+
+func createResposeMessage(resultName map[string]string, v reflect.Value, i int) (responseMessage string) {
+	responseMessage = responseMessage +
+		resultName[v.Type().Field(i).Name] + ":" +
+		v.Field(i).Interface().(string) + "\n"
+
+	return
 }
 
 func init() {
