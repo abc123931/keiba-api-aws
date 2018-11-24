@@ -23,7 +23,7 @@ type CourseResult struct {
 	Name                  string `dynamo:"name" json:"name"`
 	SapporoTurf           string `dynamo:"sapporo_turf" json:"sapporo_turf"`
 	HakodateTurf          string `dynamo:"hakodate_turf" json:"hakodate_turf"`
-	FukushimaTurf         string `dynamo:"fukushima_turf" json:"fukushima_turf"`
+	HukushimaTurf         string `dynamo:"hukushima_turf" json:"hukushima_turf"`
 	NigataTurf            string `dynamo:"nigata_turf" json:"nigata_turf"`
 	TokyoTurf             string `dynamo:"tokyo_turf" json:"tokyo_turf"`
 	NakayamaTurf          string `dynamo:"nakayama_turf" json:"nakayama_turf"`
@@ -43,6 +43,10 @@ type CourseResult struct {
 	ThreeThousandTurf     string `dynamo:"3000_turf" json:"3000_turf"`
 	ThirtyTwoHundredTurf  string `dynamo:"3200_turf" json:"3200_turf"`
 	ThirtySixHundredTurf  string `dynamo:"3600_turf" json:"3600_turf"`
+	RyoTurf               string `dynamo:"ryo_turf" json:"ryo_turf"`
+	YayaomoTurf           string `dynamo:"yayaomo_turf" json:"yayaomo_turf"`
+	OmoTurf               string `dynamo:"omo_turf" json:"omo_turf"`
+	FuryoTurf             string `dynamo:"furyo_turf" json:"furyo_turf"`
 }
 
 // Table dynamo.Table用の構造体
