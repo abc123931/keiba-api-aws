@@ -28,32 +28,14 @@ type LineMessage struct {
 	Status     int
 }
 
-// HorseNameRequest 馬名のリクエスト構造体
-type HorseNameRequest struct {
-	Category  string `json:"category"`
-	HorseName string `json:"horse_name"`
-}
-
 // CourseResultRequest 馬名のリクエスト構造体
 type CourseResultRequest struct {
 	Name string `json:"name"`
 }
 
-// HorseNameData gethorsenameのレスポンスのdataの構造体
-type HorseNameData struct {
-	Data []HorseNameResponse `json:"data"`
-}
-
 // CourseResultData courseresultのレスポンスのdataの構造体
 type CourseResultData struct {
 	Data CourseResult `json:"data"`
-}
-
-// HorseNameResponse 馬名のリクエスト構造体
-type HorseNameResponse struct {
-	Category string `json:"category"`
-	Name     string `json:"name"`
-	ID       string `json:"id"`
 }
 
 // CourseResult コース成績用構造体
@@ -184,28 +166,6 @@ func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, e
 	}, nil
 }
 
-// httpClientGetId 馬名からidを取得する関数
-// func httpClientGetId(horseName string) string {
-// 	values, err := json.Marshal(HorseNameRequest{Category: "horse", HorseName: horseName})
-// 	res, err := http.Post("https://xs8k217r0j.execute-api.ap-northeast-1.amazonaws.com/Prod/horsename", "application/json", bytes.NewBuffer(values))
-// 	if err != nil {
-// 		fmt.Printf("%v\n", err)
-// 	}
-// 	defer res.Body.Close()
-// 	body, err := ioutil.ReadAll(res.Body)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	horseNameData := &HorseNameData{}
-// 	err = json.Unmarshal(body, horseNameData)
-// 	if err != nil {
-// 		fmt.Printf("failed unmarshal request: %v", err)
-// 		log.Fatal(err)
-// 	}
-
-// 	return horseNameData.Data[0].ID
-// }
-
 // httpClientCourseResult idからその馬のコース成績を取得する関数
 func httpClientCourseResult(name string) string {
 	values, err := json.Marshal(CourseResultRequest{Name: name})
@@ -238,9 +198,8 @@ func httpClientCourseResult(name string) string {
 			if courseCount == 0 {
 				responseMessage = responseMessage + "(コース成績)\n"
 			}
-			responseMessage = responseMessage +
-				courseResultName[v.Type().Field(i).Name] + ":" +
-				v.Field(i).Interface().(string) + "\n"
+
+			responseMessage = createResposeMessage(courseResultName, v, i, responseMessage)
 			courseCount++
 		}
 
@@ -250,10 +209,7 @@ func httpClientCourseResult(name string) string {
 				responseMessage = responseMessage + "\n(距離成績)\n"
 			}
 
-			responseMessage = responseMessage +
-				distanceResultName[v.Type().Field(i).Name] + ":" +
-				v.Field(i).Interface().(string) + "\n"
-
+			responseMessage = createResposeMessage(distanceResultName, v, i, responseMessage)
 			distanceCount++
 		}
 
@@ -263,10 +219,7 @@ func httpClientCourseResult(name string) string {
 				responseMessage = responseMessage + "\n(馬場成績)\n"
 			}
 
-			responseMessage = responseMessage +
-				babaResultName[v.Type().Field(i).Name] + ":" +
-				v.Field(i).Interface().(string) + "\n"
-
+			responseMessage = createResposeMessage(babaResultName, v, i, responseMessage)
 			babaCount++
 		}
 	}
@@ -278,8 +231,8 @@ func httpClientCourseResult(name string) string {
 	return responseMessage
 }
 
-func createResposeMessage(resultName map[string]string, v reflect.Value, i int) (responseMessage string) {
-	responseMessage = responseMessage +
+func createResposeMessage(resultName map[string]string, v reflect.Value, i int, message string) (responseMessage string) {
+	responseMessage = message +
 		resultName[v.Type().Field(i).Name] + ":" +
 		v.Field(i).Interface().(string) + "\n"
 

@@ -43,6 +43,7 @@ phases:
       - go test ./gethorsename/
       - go test ./gethorseid/
       - go test ./line_bot_test/
+      - go test ./getcourseresult/
 
   build:
     commands:
