@@ -44,6 +44,7 @@ phases:
       - go test ./gethorseid/
       - go test ./line_bot_test/
       - go test ./getcourseresult/
+      - go test ./getraceindex/
 
   build:
     commands:

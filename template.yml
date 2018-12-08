@@ -107,6 +107,23 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           DYNAMO_REGION: ap-northeast-1
+  GetRaceIndex:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: getraceindex/
+      Handler: main
+      Runtime: go1.x
+      FunctionName: get-race-index
+      Role: !GetAtt BackingLambdaExecutionRole.Arn
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /raceindex
+            Method: post
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DYNAMO_REGION: ap-northeast-1
   BackingLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:

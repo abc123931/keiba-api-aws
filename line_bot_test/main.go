@@ -148,6 +148,15 @@ func getLineMessage(p ParseRequestInterface, r events.APIGatewayProxyRequest) (l
 func handler(r events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	lineMessage := getLineMessage(&ParseRequestStruct{}, r)
 	responseMessage := httpClientCourseResult(lineMessage.Message.Text)
+
+	if responseMessage == "" {
+		responseMessage = httpClientRaceIndex(lineMessage.Message.Text)
+	}
+
+	if responseMessage == "" {
+		responseMessage = "そんな馬またはレースはありませんよ"
+	}
+
 	bot, err := linebot.New(
 		channelSecret,
 		channelToken,
@@ -224,8 +233,19 @@ func httpClientCourseResult(name string) string {
 		}
 	}
 
-	if responseMessage == "" {
-		responseMessage = "そんな馬はいませんよ"
+	return responseMessage
+}
+
+func httpClientRaceIndex(name string) string {
+	responseMessage := ""
+	raceIndexs := requestRaceIndexAPI(name)
+
+	if len(raceIndexs) != 0 {
+		responseMessage = "指数一覧\n総合 調教 厩舎\n"
+		for _, v := range raceIndexs {
+			responseMessage = responseMessage + v.Name + "\n" +
+				v.TotalIndex + " " + v.TrainIndex + " " + v.StableIndex + "\n"
+		}
 	}
 
 	return responseMessage
