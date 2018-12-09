@@ -42,7 +42,7 @@ phases:
       # Run all tests included with our application
       - go test ./gethorsename/
       - go test ./gethorseid/
-      #- go test ./line_bot_test/
+      - go test ./line_bot_test/
       - go test ./getcourseresult/
       - go test ./getraceindex/
 
@@ -59,6 +59,8 @@ phases:
       - cd ../line_bot_test
       - go build -o main
       - cd ../getcourseresult
+      - go build -o main
+      - cd ../getraceindex
       - go build -o main
       - cd ../
 
