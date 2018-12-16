@@ -243,7 +243,7 @@ func httpClientRaceIndex(name string) string {
 	if len(raceIndexs) != 0 {
 		responseMessage = "指数一覧\n総合 調教 厩舎\n"
 		for _, v := range raceIndexs {
-			responseMessage = responseMessage + v.Name + "\n" +
+			responseMessage = responseMessage + "\n" + v.Name + "\n" +
 				v.TotalIndex + " " + v.TrainIndex + " " + v.StableIndex + "\n"
 		}
 	}

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sort"
 )
 
 // RaceIndexRequest レースインデックスリクエスト構造体
@@ -17,6 +18,23 @@ type RaceIndexRequest struct {
 // RaceIndexData raceIndexのレスポンスのdataの構造体
 type RaceIndexData struct {
 	Data []RaceIndex `json:"data"`
+}
+
+// RaceIndexs ソートするための構造体のスライス
+type RaceIndexs []RaceIndex
+
+// 以下Sortインターフェースを継承する為に必要
+func (r RaceIndexs) Len() int {
+	return len(r)
+}
+
+func (r RaceIndexs) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
+}
+
+// ここでなにでソートするか決める
+func (r RaceIndexs) Less(i, j int) bool {
+	return r[i].TotalIndex > r[j].TotalIndex
 }
 
 // RaceIndex レースインデックス用構造体
@@ -53,5 +71,9 @@ func requestRaceIndexAPI(name string) []RaceIndex {
 		log.Fatal(err)
 	}
 
-	return raceIndexData.Data
+	var raceIndexs RaceIndexs = raceIndexData.Data
+
+	sort.Sort(raceIndexs)
+
+	return raceIndexs
 }
